@@ -67,7 +67,7 @@ class BoldDefinitions:
             js_paths=None,
             gd_path=self.pth.bold_def_gd_path,
             md_path=self.pth.bold_def_mdict_path,
-            dict_name="bold_definitions",
+            dict_name="bold-def",
             icon_path=None,
             zip_up=True,
             delete_original=True,
