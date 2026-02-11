@@ -71,7 +71,7 @@ def export_goldendict_and_mdict(g: GlobalVars):
         js_paths=None,
         gd_path=g.pth.sin_eng_sin_gd_path,
         md_path=g.pth.sin_eng_sin_mdict_path,
-        dict_name="si-en-si",
+        dict_name="sin-eng-sin",
         icon_path=None,
         zip_up=True,
         delete_original=True,

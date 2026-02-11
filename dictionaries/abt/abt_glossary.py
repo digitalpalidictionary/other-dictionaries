@@ -49,7 +49,7 @@ def main():
         js_paths=None,
         gd_path=pth.abt_gd_path,
         md_path=pth.abt_mdict_path,
-        dict_name="cped",
+        dict_name="abt",
         icon_path=None,
         zip_up=True,
         delete_original=True,
