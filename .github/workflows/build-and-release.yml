@@ -3,6 +3,11 @@ name: Build and Release
 on:
   push:
     branches: [main]
+    paths:
+      - 'dictionaries/**'
+      - 'scripts/**'
+      - 'vendor/**'
+      - 'pyproject.toml'
   workflow_dispatch:
 
 jobs:
@@ -23,11 +28,14 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      - name: Install zstd
+        run: sudo apt-get update && sudo apt-get install -y zstd
+
       - name: Install dependencies
         run: uv sync
         working-directory: resources/other-dictionaries
 
-      - name: Build all dictionaries
+      - name: Decompress sources and build dictionaries
         run: uv run python scripts/export_all.py
         working-directory: resources/other-dictionaries
 
