@@ -1,0 +1,31 @@
+from dictionaries.abt.abt_glossary import main as abt
+from dictionaries.bhs.bhs import main as bhs
+from dictionaries.bold_def.bold_definitions import BoldDefinitions
+from dictionaries.dppn.dppn import main as dppn
+from dictionaries.dpr.dpr import main as dpr
+from dictionaries.mw.mw_from_simsapa import main as mw
+from dictionaries.peu.peu import main as peu
+from dictionaries.simsapa.simsapa_combined import main as simsapa
+from dictionaries.sin_eng_sin.sin_eng_sin import main as sin_eng_sin
+from dictionaries.whitney.whitney import main as whitney
+
+from rich import print
+
+
+def main():
+    print("[bright_yellow]exporting all dictionaries in goldendict and mdict format")
+    abt()
+    bhs()
+    BoldDefinitions().run()
+    dppn()
+    dpr()
+    mw()
+    peu()
+    simsapa()
+    sin_eng_sin()
+    whitney()
+    print("[bright_green]all dictionaries exported successfully!")
+
+
+if __name__ == "__main__":
+    main()
