@@ -11,11 +11,16 @@ from dictionaries.simsapa.simsapa_combined import main as simsapa
 from dictionaries.sin_eng_sin.sin_eng_sin import main as sin_eng_sin
 from dictionaries.whitney.whitney import main as whitney
 
-from rich import print
+from vendor.dpd_tools.printer import printer as pr
 
 
 def main():
-    print("[bright_yellow]exporting all dictionaries in goldendict and mdict format")
+    pr.title("exporting all dictionaries in goldendict and mdict format")
+
+    # Decompress sources first
+    from scripts.decompress_sources import decompress_sources
+    decompress_sources()
+
     abt()
     bhs()
     BoldDefinitions().run()
@@ -28,7 +33,8 @@ def main():
     simsapa()
     sin_eng_sin()
     whitney()
-    print("[bright_green]all dictionaries exported successfully!")
+
+    pr.green_title("all dictionaries exported successfully!")
 
 
 if __name__ == "__main__":
