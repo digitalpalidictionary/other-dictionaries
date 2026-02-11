@@ -33,20 +33,54 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
-        working-directory: resources/other-dictionaries
 
       - name: Decompress sources and build dictionaries
         run: uv run python scripts/export_all.py
-        working-directory: resources/other-dictionaries
+
+      - name: Verify build outputs exist
+        run: |
+          if [ ! -d "./build/goldendict" ] || [ ! -d "./build/mdict" ]; then
+            echo "Error: Build directories not found"
+            exit 1
+          fi
+          GD_COUNT=$(ls ./build/goldendict/*.zip 2>/dev/null | wc -l)
+          MD_COUNT=$(ls ./build/mdict/*.zip 2>/dev/null | wc -l)
+          echo "GoldenDict zips: $GD_COUNT"
+          echo "MDict zips: $MD_COUNT"
+          if [ "$GD_COUNT" -eq 0 ] && [ "$MD_COUNT" -eq 0 ]; then
+            echo "Error: No dictionary zip files found"
+            exit 1
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dictionary-zips
+          path: |
+            ./build/goldendict/*.zip
+            ./build/mdict/*.zip
+          retention-days: 7
 
       - name: Get next version
         id: version
         run: |
           uv run python scripts/version.py >> $GITHUB_OUTPUT
-        working-directory: resources/other-dictionaries
+
+      - name: Check if release exists
+        id: check_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if gh release view "$VERSION" &>/dev/null; then
+            echo "Release $VERSION already exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create release
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check_release.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -56,4 +90,12 @@ jobs:
             --notes "Automated release of dictionary files" \
             ./build/goldendict/*.zip \
             ./build/mdict/*.zip
-        working-directory: resources/other-dictionaries
+
+      - name: Update existing release
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check_release.outputs.exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Release $VERSION already exists. Uploading new assets..."
+          gh release upload "$VERSION" ./build/goldendict/*.zip ./build/mdict/*.zip --clobber
