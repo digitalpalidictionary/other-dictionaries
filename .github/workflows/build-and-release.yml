@@ -5,9 +5,6 @@ on:
     branches: [main]
     paths:
       - 'dictionaries/**'
-      - 'scripts/**'
-      - 'vendor/**'
-      - 'pyproject.toml'
   workflow_dispatch:
 
 jobs:
@@ -111,7 +108,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           gh release create "$VERSION" \
             --title "Release $VERSION" \
-            --notes "Automated release of dictionary files" \
+            --notes "Other Pāḷi and Sanskrit dictionaries" \
             ./release-assets/*.zip
 
       - name: Update existing release
