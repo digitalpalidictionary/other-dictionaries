@@ -28,18 +28,12 @@ def decompress_sources():
         dict_name = archive_path.stem.split(".")[0]  # Remove .tar.zst
         source_dir = archive_path.parent / "source"
 
-        # Check if already decompressed
-        if source_dir.exists() and any(source_dir.iterdir()):
-            pr.green(f"{dict_name}: already decompressed")
-            continue
-
-        pr.green_title(f"decompressing {dict_name}")
+        pr.green(f"decompressing {dict_name}")
 
         # Create source directory if needed
         source_dir.mkdir(parents=True, exist_ok=True)
 
         # Decompress with zstd
-        pr.white("  decompressing with zstd...")
         tar_path = archive_path.with_suffix("")  # Remove .zst
         result = subprocess.run(
             ["zstd", "-d", "-f", str(archive_path), "-o", str(tar_path)],
@@ -51,10 +45,9 @@ def decompress_sources():
             pr.no("failed")
             pr.error(f"  failed to decompress {dict_name}")
             if result.stderr:
-                pr.error(f"    error: {result.stderr}")
+                pr.error(f"error: {result.stderr}")
             continue
         # Extract tar archive
-        pr.white("  extracting tar archive...")
         try:
             with tarfile.open(tar_path, "r") as tar:
                 tar.extractall(path=source_dir)
@@ -65,15 +58,14 @@ def decompress_sources():
             # Count extracted files
             extracted_files = list(source_dir.iterdir())
             pr.yes("ok")
-            pr.info(f"  {len(extracted_files)} files extracted")
+            pr.info(f"{len(extracted_files)} files extracted")
             decompressed_count += 1
 
         except Exception as e:
             pr.no("failed")
-            pr.error(f"  failed to extract {dict_name}: {e}")
+            pr.error(f"failed to extract {dict_name}: {e}")
             tar_path.unlink(missing_ok=True)
 
-    pr.green_title("decompression complete")
     if decompressed_count > 0:
         pr.info(f"{decompressed_count} dictionaries decompressed")
     else:
