@@ -19,8 +19,9 @@ dist/
 bulk_dump_html.html
 *.js.map
 
-# Source
+# Source - ignore uncompressed but track compressed
 /dictionaries/*/source/*
+!/dictionaries/*/source/*.zst
 
 # logs
 *.log
