@@ -1,0 +1,26 @@
+# Build outputs
+build/
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Generated files
+bulk_dump_html.html
+*.js.map
+
+# Source
+/dictionaries/*/source/*
+
+# logs
+*.log
