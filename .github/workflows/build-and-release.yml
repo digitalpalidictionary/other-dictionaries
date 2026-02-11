@@ -52,13 +52,37 @@ jobs:
             exit 1
           fi
 
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          
+          # Rename individual dictionary files with -gd and -mdict suffixes
+          for zip in build/goldendict/*.zip; do
+            basename=$(basename "$zip" .zip)
+            cp "$zip" "release-assets/${basename}-gd.zip"
+          done
+          
+          for zip in build/mdict/*.zip; do
+            basename=$(basename "$zip" .zip)
+            cp "$zip" "release-assets/${basename}-mdict.zip"
+          done
+          
+          # Create combined archives (flat structure)
+          cd build/goldendict
+          zip -r ../../release-assets/all-dictionaries-gd.zip *.zip
+          cd ../mdict
+          zip -r ../../release-assets/all-dictionaries-mdict.zip *.zip
+          cd ../..
+          
+          echo "Release assets prepared:"
+          ls -la release-assets/
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dictionary-zips
           path: |
-            ./build/goldendict/*.zip
-            ./build/mdict/*.zip
+            ./release-assets/*.zip
           retention-days: 7
 
       - name: Get next version
@@ -88,8 +112,7 @@ jobs:
           gh release create "$VERSION" \
             --title "Release $VERSION" \
             --notes "Automated release of dictionary files" \
-            ./build/goldendict/*.zip \
-            ./build/mdict/*.zip
+            ./release-assets/*.zip
 
       - name: Update existing release
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check_release.outputs.exists == 'true'
@@ -98,4 +121,4 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           echo "Release $VERSION already exists. Uploading new assets..."
-          gh release upload "$VERSION" ./build/goldendict/*.zip ./build/mdict/*.zip --clobber
+          gh release upload "$VERSION" ./release-assets/*.zip --clobber
