@@ -14,7 +14,7 @@ Auxiliary dictionary exporters for Pāḷi, Sanskrit, and Sinhala languages, pro
 | dhammika | Dhammika | Data only (no exporter yet) |
 | dppn | DPPN | Dictionary of Pāḷi Proper Names |
 | dpr | DPR Analysis | Digital Pali Reader analysis data |
-| mw | Monier-Williams | Sanskrit-English dictionary |
+| mw | Monier-Williams (Cologne) | Sanskrit-English dictionary (from Cologne source) |
 | peu | Pali English Ultimate | Combined Pāḷi-English dictionary |
 | simsapa | Simsapa Combined | Combined dictionary from Simsapa |
 | sin_eng_sin | Sinhala-English-Sinhala | Trilingual dictionary |
