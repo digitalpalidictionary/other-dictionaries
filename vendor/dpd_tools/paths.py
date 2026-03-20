@@ -21,6 +21,7 @@ class RepoPaths:
         self.bmp_files_path = base_dir / "bmp_files"
 
         self._setup_abt_paths()
+        self._setup_apte_paths()
         self._setup_bhs_paths()
         self._setup_bold_def_paths()
         self._setup_cone_paths()
@@ -42,6 +43,15 @@ class RepoPaths:
         self.abt_source_path = d / "source" / "CPED.csv"
         self.abt_gd_path = self.goldendict_path
         self.abt_mdict_path = self.mdict_path
+
+    def _setup_apte_paths(self):
+        d = self.dictionaries_dir / "apte"
+        self.apte_source_dir = d / "source" / "web" / "sqlite"
+        self.apte_zip_path = d / "source" / "ap90web1.zip"
+        self.apte_json_path = d / "source" / "apte.json"
+        self.apte_css_path = d / "apte.css"
+        self.apte_gd_path = self.goldendict_path
+        self.apte_mdict_path = self.mdict_path
 
     def _setup_bhs_paths(self):
         d = self.dictionaries_dir / "bhs"
