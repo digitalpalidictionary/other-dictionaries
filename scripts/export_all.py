@@ -3,7 +3,7 @@ from dictionaries.bhs.bhs import main as bhs
 from dictionaries.bold_def.bold_definitions import BoldDefinitions
 from dictionaries.dppn.dppn import main as dppn
 from dictionaries.dpr.dpr import main as dpr
-from dictionaries.mw.mw_from_simsapa import main as mw
+from dictionaries.mw.mw_from_cologne import main as mw
 from dictionaries.peu.peu import main as peu
 from dictionaries.simsapa.simsapa_combined import main as simsapa
 from dictionaries.sin_eng_sin.sin_eng_sin import main as sin_eng_sin
@@ -17,6 +17,7 @@ def main():
 
     # Decompress sources first
     from scripts.decompress_sources import decompress_sources
+
     decompress_sources()
 
     abt()

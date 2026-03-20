@@ -86,7 +86,10 @@ class RepoPaths:
 
     def _setup_mw_paths(self):
         d = self.dictionaries_dir / "mw"
-        self.mw_source_path = d / "source" / "mw.json"
+        self.mw_source_dir = d / "source" / "web" / "sqlite"
+        self.mw_zip_path = d / "source" / "mwweb1.zip"
+        self.mw_json_path = d / "source" / "mw.json"
+        self.mw_css_path = d / "mw.css"
         self.mw_gd_path = self.goldendict_path
         self.mw_mdict_path = self.mdict_path
 
