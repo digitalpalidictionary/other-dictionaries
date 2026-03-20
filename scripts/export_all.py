@@ -1,4 +1,5 @@
 from dictionaries.abt.abt_glossary import main as abt
+from dictionaries.apte.apte_from_cologne import main as apte
 from dictionaries.bhs.bhs import main as bhs
 from dictionaries.bold_def.bold_definitions import BoldDefinitions
 from dictionaries.cone.cone import main as cone
@@ -23,6 +24,7 @@ def main():
     decompress_sources()
 
     abt()
+    apte()
     bhs()
     BoldDefinitions().run()
     cone()

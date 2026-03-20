@@ -7,6 +7,7 @@ Auxiliary dictionary exporters for Pāḷi, Sanskrit, and Sinhala languages, pro
 | Code | Name | Description |
 |------|------|-------------|
 | abt | Ancient Buddhist Texts Glossary | CPED glossary from Ancient Buddhist Texts |
+| apte | Apte (Cologne) | Sanskrit-English dictionary (from Cologne source) |
 | bhs | Buddhist Hybrid Sanskrit | Edgerton's BHS dictionary |
 | bold_def | CST Bold Definitions | Bold definitions from CST texts |
 | cone | Margaret Cone | Dictionary of Pāḷi (partial) |
