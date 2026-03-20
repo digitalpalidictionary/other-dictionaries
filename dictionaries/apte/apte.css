@@ -1,0 +1,21 @@
+/* Apte CSS — derived from Cologne main.css + font.css */
+
+.sdata { color: teal; font-style: italic; }
+.hom { color: red; }
+.ls[title] { color: blue; font-size: 10pt; }
+.ls { color: gray; font-size: 10pt; }
+.gram { font-weight: bold; }
+.divm { font-weight: bold; }
+.greek { font-style: italic; }
+.dotunder { border-bottom: 1px dotted currentColor; text-decoration: none; }
+.lnum { font-size: smaller; background-color: rgb(240, 240, 240); }
+.g { font-size: smaller; font-style: italic; }
+.lang { font-size: smaller; font-style: italic; }
+.pb { font-size: smaller; }
+.footnote { font-size: smaller; }
+.foreign { color: brown; }
+.div-sep { margin-top: 0.6em; }
+.fn-label { font-weight: bold; }
+.pcol-ref { color: rgb(160, 160, 160); }
+.record-id { color: rgb(130, 130, 130); }
+.alt-hw { font-size: smaller; }
