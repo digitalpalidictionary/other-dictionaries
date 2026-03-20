@@ -1,0 +1,82 @@
+/* MW CSS — derived from Cologne main.css + font.css
+   with additional classes replacing PHP inline styles.
+   No @font-face rules (GoldenDict has adequate Unicode support). */
+
+/* Sanskrit text */
+.sdata { color: teal; font-style: italic; }
+
+/* Homonym markers */
+.hom { color: red; }
+
+/* Literature references (with tooltip = blue, without = gray) */
+.ls[title] {
+    color: blue;
+    font-size: 10pt;
+}
+.ls {
+    color: gray;
+    font-size: 10pt;
+}
+
+/* Grammar labels */
+.gram { font-weight: bold; }
+
+/* Division markers */
+.divm { font-weight: bold; }
+
+/* Greek and foreign scripts */
+.greek {
+    font-style: italic;
+}
+
+/* Abbreviation dotted underline */
+.dotunder {
+    border-bottom: 1px dotted currentColor;
+    text-decoration: none;
+}
+
+/* Record/line number labels */
+.lnum {
+    font-size: smaller;
+    background-color: rgb(240, 240, 240);
+}
+
+/* Generic grammar/italic markers */
+.g {
+    font-size: smaller;
+    font-style: italic;
+}
+.lang {
+    font-size: smaller;
+    font-style: italic;
+}
+
+/* Page break markers */
+.pb { font-size: smaller; }
+
+/* Footnotes */
+.footnote { font-size: smaller; }
+
+/* --- Additional classes replacing PHP inline styles --- */
+
+/* <bot> and <bio> tags: foreign/botanical/biographical text */
+.foreign { color: brown; }
+
+/* <div> separator: vertical spacing between divisions */
+.div-sep { margin-top: 0.6em; }
+
+/* Footnote label: [Footnote: ...] */
+.fn-label { font-weight: bold; }
+
+/* Page-column references: [p.X,Y] */
+.pcol-ref {
+    color: rgb(160, 160, 160);
+}
+
+/* Cologne record ID: [ID=X] — rgb(130,130,130) from PHP source */
+.record-id {
+    color: rgb(130, 130, 130);
+}
+
+/* Alternate headword: smaller text */
+.alt-hw { font-size: smaller; }
