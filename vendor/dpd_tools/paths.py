@@ -76,7 +76,8 @@ class RepoPaths:
 
     def _setup_cpd_paths(self):
         d = self.dictionaries_dir / "cpd"
-        self.cpd_source_path = d / "source" / "en-critical.json"
+        self.cpd_source_path = d / "source" / "cpd_clean.db"
+        self.cpd_css_path = d / "cpd.css"
         self.cpd_gd_path = self.goldendict_path
         self.cpd_mdict_path = self.mdict_path
 

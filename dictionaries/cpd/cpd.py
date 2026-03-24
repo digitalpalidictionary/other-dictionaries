@@ -1,76 +1,84 @@
-# -*- coding: utf-8 -*-
-"""Export Critical Pāḷi dictionary into GoldenDict, MDict and JSON formats."""
+"""Export Critical Pāḷi Dictionary from SQLite into GoldenDict and MDict formats."""
 
 import re
-import json
+import sqlite3
 
-from rich import print
-
-from vendor.dpd_tools.mdict_exporter import export_to_mdict
-from vendor.dpd_tools.niggahitas import add_niggahitas
-from vendor.dpd_tools.paths import RepoPaths
 from vendor.dpd_tools.goldendict_exporter import DictEntry, DictInfo, DictVariables
 from vendor.dpd_tools.goldendict_exporter import export_to_goldendict_with_pyglossary
+from vendor.dpd_tools.mdict_exporter import export_to_mdict
+from vendor.dpd_tools.paths import RepoPaths
 from vendor.dpd_tools.printer import printer as pr
 
 
-def clean_text(text):
-    """Clean up problems in the source text."""
-    text = (
-        text.replace("I", "l")
-        .replace("<br\\/>", " ")
-        .replace("rh", "ṁ")
-        .replace("ç", "ś")
-        .replace("ṁ", "ṃ")
-    )
-    text = text.replace("  ", " ")
-
-    text = re.sub(r"([a-zāūīṅñṭḍṇḷ]<\/.>)([a-zāūīṅñṭḍṇḷ])", "\\1 \\2", text)
-    return text
+def make_niggahita_synonyms(headword: str) -> list[str]:
+    """Generate ṃ and ŋ variants for CPD headwords that use ṁ."""
+    if "ṁ" not in headword:
+        return []
+    synonyms: set[str] = set()
+    synonyms.add(headword.replace("ṁ", "ṃ"))
+    synonyms.add(headword.replace("ṁ", "ŋ"))
+    return list(synonyms)
 
 
-def main():
+def main() -> None:
     pr.tic()
-    print("[bright_yellow]exporting CPD for GoldenDict and MDict")
+    pr.title("exporting CPD for GoldenDict and MDict")
 
     pth = RepoPaths()
 
-    print("[green]making data list")
-    with open(pth.cpd_source_path, "r") as file:
-        cped_data = json.load(file)
+    pr.green("loading cpd_clean.db")
+    conn = sqlite3.connect(pth.cpd_source_path)
+    rows = conn.execute(
+        "SELECT headword, html FROM entries ORDER BY id"
+    ).fetchall()
+    conn.close()
+    pr.yes(str(len(rows)))
 
+    pr.green("making dict entries")
     dict_data: list[DictEntry] = []
-    for i in cped_data:
-        headword, html, id = i
-        headword = clean_text(headword)
-        html = clean_text(html)
-
-        if "ṃ" in headword:
-            synonyms = add_niggahitas([headword])
-        else:
-            synonyms = []
-
-        dict_entry = DictEntry(
-            word=headword,
-            definition_html=html,
-            definition_plain="",
-            synonyms=synonyms,
+    for headword, html in rows:
+        html = re.sub(r"<img[^>]*>", "", html)
+        synonyms = make_niggahita_synonyms(headword)
+        html = (
+            "<!DOCTYPE html>"
+            "<html lang='en'>"
+            "<head>"
+            "<meta charset='utf-8'>"
+            "<link href='cpd.css' rel='stylesheet'>"
+            "</head>"
+            "<body>"
+            f"{html}"
+            "</body></html>"
         )
-        dict_data.append(dict_entry)
-
-    print("[green]saving goldendict")
+        dict_data.append(
+            DictEntry(
+                word=headword,
+                definition_html=html,
+                definition_plain="",
+                synonyms=synonyms,
+            )
+        )
+    pr.yes("ok")
 
     dict_info = DictInfo(
         bookname="Critical Pāli Dictionary",
         author="V. Trenckner et al.",
-        description="<h3>A Critical Pāli Dictionary</h3><p>by V. Trenckner, et al. Published by the Royal Danish Academy of Science and Letters, Copenhagen, 1925 -2011</p>The dictionary can be found online on the <a href='https://cpd.uni-koeln.de'>Cologne University</a> website</p><p>Encoded by Bodhirasa 2024.</p>",
+        description=(
+            "<h3>A Critical Pāli Dictionary</h3>"
+            "<p>by V. Trenckner, et al. Published by the Royal Danish Academy "
+            "of Science and Letters, Copenhagen, 1925–2011.</p>"
+            "<p>The dictionary can be found online on the "
+            "<a href='https://cpd.uni-koeln.de'>Cologne University</a> "
+            "website.</p>"
+            "<p>Encoded by Bodhirasa 2024.</p>"
+        ),
         website="https://cpd.uni-koeln.de",
         source_lang="pi",
         target_lang="en",
     )
 
     dict_vars = DictVariables(
-        css_paths=None,
+        css_paths=[pth.cpd_css_path],
         js_paths=None,
         gd_path=pth.cpd_gd_path,
         md_path=pth.cpd_mdict_path,
@@ -80,19 +88,8 @@ def main():
         delete_original=True,
     )
 
-    export_to_goldendict_with_pyglossary(
-        dict_info,
-        dict_vars,
-        dict_data,
-    )
-
-    print("[green]saving mdict")
-
-    export_to_mdict(
-        dict_info,
-        dict_vars,
-        dict_data,
-    )
+    export_to_goldendict_with_pyglossary(dict_info, dict_vars, dict_data)
+    export_to_mdict(dict_info, dict_vars, dict_data)
 
     pr.toc()
 
