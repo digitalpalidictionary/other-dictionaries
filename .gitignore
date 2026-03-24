@@ -25,3 +25,16 @@ bulk_dump_html.html
 
 # logs
 *.log
+archive/*
+
+# CPD scraper
+scrapers/cpd/data/
+scrapers/cpd/diagnose_report.txt
+scrapers/cpd/.python-version
+
+# Cone scraper
+scrapers/cone/headwords.tsv
+scrapers/cone/cone_dict.json
+scrapers/cone/front_matter.json
+scrapers/cone/test.html
+scrapers/cone/.python-version
