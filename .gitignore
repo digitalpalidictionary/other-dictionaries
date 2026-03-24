@@ -25,3 +25,4 @@ bulk_dump_html.html
 
 # logs
 *.log
+archive/*
