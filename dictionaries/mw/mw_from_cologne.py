@@ -30,7 +30,7 @@ def main() -> None:
     dict_data = build_mw_entries(data)
 
     dict_info = DictInfo(
-        bookname="Monier-Williams Sanskrit-English Dictionary (Cologne)",
+        bookname="Monier-Williams Sanskrit-English Dictionary, 1899",
         author="Sir Monier Monier-Williams",
         description=(
             "<h3>Monier-Williams Sanskrit-English Dictionary 1899</h3>"
