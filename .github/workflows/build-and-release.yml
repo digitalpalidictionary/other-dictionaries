@@ -87,8 +87,6 @@ jobs:
           cat > release-notes.md << 'EOF'
           Other Pāḷi and Sanskrit dictionaries for GoldenDict and MDict.
 
-          ## Dictionaries
-
           | Abbreviation | Full name |
           |---|---|
           | apte | Apte Practical Sanskrit-English Dictionary, 1890 |
