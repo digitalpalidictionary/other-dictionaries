@@ -4,24 +4,21 @@ Auxiliary dictionary exporters for Pāḷi, Sanskrit, and Sinhala languages, pro
 
 ## Dictionaries
 
-| Code | Name | Description |
-|------|------|-------------|
-| abt | Ancient Buddhist Texts Glossary | CPED glossary from Ancient Buddhist Texts |
-| apte | Apte (Cologne) | Sanskrit-English dictionary (from Cologne source) |
-| bhs | Buddhist Hybrid Sanskrit | Edgerton's BHS dictionary |
-| bold_def | CST Bold Definitions | Bold definitions from CST texts |
-| cone | Margaret Cone | Dictionary of Pāḷi (partial) |
-| cpd | Critical Pāḷi Dictionary | CPD from Copenhagen |
-| dhammika | Dhammika | Data only (no exporter yet) |
-| dppn | DPPN | Dictionary of Pāḷi Proper Names |
-| dpr | DPR Analysis | Digital Pali Reader analysis data |
-| mw | Monier-Williams (Cologne) | Sanskrit-English dictionary (from Cologne source) |
-| peu | Pali English Ultimate | Combined Pāḷi-English dictionary |
-| simsapa | Simsapa Combined | Combined dictionary from Simsapa |
-| sin_eng_sin | Sinhala-English-Sinhala | Trilingual dictionary |
-| vri | VRI | Vipassana Research Institute (data only) |
-| whitney | Whitney Roots | Sanskrit roots dictionary |
-| wordnet | WordNet | Pāḷi WordNet (incomplete) |
+| Abbreviation | Full name |
+|---|---|
+| apte | Apte Practical Sanskrit-English Dictionary, 1890 |
+| bhs | Edgerton's Buddhist Hybrid Sanskrit Dictionary, 1953 |
+| bold_definitions | CST Bold Definitions |
+| cone | Dictionary of Pāli by Margaret Cone |
+| cpd | Critical Pāli Dictionary |
+| cped | Concise Pali English Dictionary (Ancient Buddhist Texts) |
+| dppn | Dictionary of Pāli Proper Names |
+| dpr | DPR Analysis |
+| mw | Monier-Williams Sanskrit-English Dictionary, 1899 |
+| peu | Pali English Ultimate |
+| si-en-si | Sinhala-English English-Sinhala Dictionary |
+| simsapa | Simsapa Combined Pali-English Dictionary |
+| whitney | Whitney Sanskrit Roots |
 
 ## Quick Start
 
