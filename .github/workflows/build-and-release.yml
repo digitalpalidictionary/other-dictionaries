@@ -82,6 +82,30 @@ jobs:
             ./release-assets/*.zip
           retention-days: 7
 
+      - name: Generate release notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          Other Pāḷi and Sanskrit dictionaries for GoldenDict and MDict.
+
+          ## Dictionaries
+
+          | Abbreviation | Full name |
+          |---|---|
+          | apte | Apte Practical Sanskrit-English Dictionary, 1890 |
+          | bhs | Edgerton's Buddhist Hybrid Sanskrit Dictionary, 1953 |
+          | bold_definitions | CST Bold Definitions |
+          | cone | Dictionary of Pāli by Margaret Cone |
+          | cpd | Critical Pāli Dictionary |
+          | cped | Concise Pali English Dictionary (Ancient Buddhist Texts) |
+          | dppn | Dictionary of Pāli Proper Names |
+          | dpr | DPR Analysis |
+          | mw | Monier-Williams Sanskrit-English Dictionary, 1899 |
+          | peu | Pali English Ultimate |
+          | si-en-si | Sinhala-English English-Sinhala Dictionary |
+          | simsapa | Simsapa Combined Pali-English Dictionary |
+          | whitney | Whitney Sanskrit Roots |
+          EOF
+
       - name: Get next version
         id: version
         run: |
@@ -108,7 +132,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           gh release create "$VERSION" \
             --title "Release $VERSION" \
-            --notes "Other Pāḷi and Sanskrit dictionaries" \
+            --notes-file release-notes.md \
             ./release-assets/*.zip
 
       - name: Update existing release
@@ -119,3 +143,4 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           echo "Release $VERSION already exists. Uploading new assets..."
           gh release upload "$VERSION" ./release-assets/*.zip --clobber
+          gh release edit "$VERSION" --notes-file release-notes.md
