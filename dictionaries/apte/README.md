@@ -1,4 +1,4 @@
-# Apte Practical Sanskrit-English Dictionary (Cologne)
+# Apte Practical Sanskrit-English Dictionary
 
 Vaman Shivram Apte's Practical Sanskrit-English Dictionary (1890), built directly from the Cologne Sanskrit Lexicon raw source data.
 
