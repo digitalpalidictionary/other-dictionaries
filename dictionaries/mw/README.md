@@ -1,4 +1,4 @@
-# MW Monier-Williams Sanskrit-English Dictionary (Cologne)
+# MW Monier-Williams Sanskrit-English Dictionary
 
 Monier-Williams' Sanskrit-English dictionary (1899), built directly from the Cologne Sanskrit Lexicon raw source data.
 
