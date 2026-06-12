@@ -23,6 +23,11 @@ bulk_dump_html.html
 /dictionaries/*/source/
 !/dictionaries/*/*.tar.zst
 
+# MW: track the raw Cologne zip as download cache + offline fallback
+!/dictionaries/mw/source/
+/dictionaries/mw/source/*
+!/dictionaries/mw/source/mwweb1.zip
+
 # logs
 *.log
 archive/*

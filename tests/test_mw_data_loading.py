@@ -63,7 +63,8 @@ class TestEntryLoading:
     """Task 2.3: Test entry loading from mw.sqlite."""
 
     def test_entries_count(self, mw_data: MwData):
-        assert len(mw_data.entries) == 286_554
+        # Cologne updates upstream data; assert a floor, not an exact pin.
+        assert len(mw_data.entries) >= 286_554
 
     def test_entries_is_dict(self, mw_data: MwData):
         assert isinstance(mw_data.entries, dict)
@@ -83,7 +84,8 @@ class TestHeadwordKeyLoading:
     """Task 2.4: Test headword key parsing from mwkeys.sqlite."""
 
     def test_keys_count(self, mw_data: MwData):
-        assert len(mw_data.keys) == 194_083
+        # Cologne updates upstream data; assert a floor, not an exact pin.
+        assert len(mw_data.keys) >= 194_083
 
     def test_keys_is_dict(self, mw_data: MwData):
         assert isinstance(mw_data.keys, dict)

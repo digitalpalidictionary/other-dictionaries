@@ -12,8 +12,13 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 
-from dictionaries.mw.mw_helpers import MW_ZIP_URL, download_fresh_source
+from dictionaries.mw.mw_helpers import (
+    MW_ZIP_URL,
+    REQUEST_HEADERS,
+    download_fresh_source,
+)
 
 
 @pytest.fixture
@@ -147,3 +152,142 @@ class TestDownloadFreshSource:
 
         assert (sqlite_dir / "mwkeys.sqlite").exists()
         assert (sqlite_dir / "mwkeys.sqlite").read_bytes() == b"keys-data"
+
+
+class TestDownloadHardening:
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    @patch("dictionaries.mw.mw_helpers.requests.get")
+    def test_sends_custom_user_agent(
+        self,
+        mock_get: MagicMock,
+        mock_head: MagicMock,
+        tmp_mw_dir: Path,
+        fake_zip: Path,
+    ):
+        """Cologne blocks python-requests' default UA — every request must
+        send the custom one."""
+        zip_path = tmp_mw_dir / "source" / "mwweb1.zip"
+        mock_head.return_value = MagicMock(
+            headers={"Content-Length": str(fake_zip.stat().st_size)},
+            status_code=200,
+        )
+        mock_get.return_value = MagicMock(
+            content=fake_zip.read_bytes(),
+            status_code=200,
+        )
+
+        download_fresh_source(zip_path=zip_path, source_dir=tmp_mw_dir / "source")
+
+        assert mock_head.call_args.kwargs["headers"] == REQUEST_HEADERS
+        assert mock_get.call_args.kwargs["headers"] == REQUEST_HEADERS
+        assert "python-requests" not in REQUEST_HEADERS["User-Agent"]
+
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    def test_head_failure_falls_back_to_local_zip(
+        self, mock_head: MagicMock, tmp_path: Path, fake_zip: Path
+    ):
+        """Cologne unreachable + valid local zip → unpack local, no error."""
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        zip_path = source_dir / "mwweb1.zip"
+        zip_path.write_bytes(fake_zip.read_bytes())
+
+        mock_head.side_effect = requests.ConnectionError("server down")
+
+        download_fresh_source(zip_path=zip_path, source_dir=source_dir)
+
+        assert (source_dir / "web" / "sqlite" / "mw.sqlite").exists()
+
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    def test_head_failure_without_local_zip_raises(
+        self, mock_head: MagicMock, tmp_mw_dir: Path
+    ):
+        """Cologne unreachable + no local zip → loud failure."""
+        zip_path = tmp_mw_dir / "source" / "mwweb1.zip"
+        mock_head.side_effect = requests.ConnectionError("server down")
+
+        with pytest.raises(RuntimeError, match="no valid local mwweb1.zip"):
+            download_fresh_source(zip_path=zip_path, source_dir=tmp_mw_dir / "source")
+
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    def test_http_error_status_falls_back(
+        self, mock_head: MagicMock, tmp_path: Path, fake_zip: Path
+    ):
+        """403/500 from Cologne (raise_for_status) → fallback, not crash."""
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        zip_path = source_dir / "mwweb1.zip"
+        zip_path.write_bytes(fake_zip.read_bytes())
+
+        response = MagicMock(status_code=403)
+        response.raise_for_status.side_effect = requests.HTTPError("403")
+        mock_head.return_value = response
+
+        download_fresh_source(zip_path=zip_path, source_dir=source_dir)
+
+        assert (source_dir / "web" / "sqlite" / "mw.sqlite").exists()
+
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    @patch("dictionaries.mw.mw_helpers.requests.get")
+    def test_invalid_download_never_clobbers_valid_local_zip(
+        self,
+        mock_get: MagicMock,
+        mock_head: MagicMock,
+        tmp_path: Path,
+        fake_zip: Path,
+    ):
+        """An empty/garbage response must not overwrite a valid local zip."""
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        zip_path = source_dir / "mwweb1.zip"
+        good_bytes = fake_zip.read_bytes()
+        zip_path.write_bytes(good_bytes)
+
+        mock_head.return_value = MagicMock(
+            headers={"Content-Length": "999999"},
+            status_code=200,
+        )
+        mock_get.return_value = MagicMock(content=b"", status_code=200)
+
+        download_fresh_source(zip_path=zip_path, source_dir=source_dir)
+
+        assert zip_path.read_bytes() == good_bytes
+        assert not zip_path.with_suffix(".zip.tmp").exists()
+        assert (source_dir / "web" / "sqlite" / "mw.sqlite").exists()
+
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    @patch("dictionaries.mw.mw_helpers.requests.get")
+    def test_invalid_download_without_local_zip_raises(
+        self, mock_get: MagicMock, mock_head: MagicMock, tmp_mw_dir: Path
+    ):
+        """Garbage response + no local zip → loud failure."""
+        zip_path = tmp_mw_dir / "source" / "mwweb1.zip"
+
+        mock_head.return_value = MagicMock(
+            headers={"Content-Length": "999999"},
+            status_code=200,
+        )
+        mock_get.return_value = MagicMock(content=b"not a zip", status_code=200)
+
+        with pytest.raises(RuntimeError, match="not a valid zip"):
+            download_fresh_source(zip_path=zip_path, source_dir=tmp_mw_dir / "source")
+
+    @patch("dictionaries.mw.mw_helpers.requests.head")
+    def test_up_to_date_zip_unpacks_when_sqlite_dir_missing(
+        self, mock_head: MagicMock, tmp_path: Path, fake_zip: Path
+    ):
+        """Fresh checkout: zip is tracked and up to date but never unpacked —
+        must unpack instead of returning early."""
+        source_dir = tmp_path / "source"
+        source_dir.mkdir()
+        zip_path = source_dir / "mwweb1.zip"
+        zip_path.write_bytes(fake_zip.read_bytes())
+
+        mock_head.return_value = MagicMock(
+            headers={"Content-Length": str(zip_path.stat().st_size)},
+            status_code=200,
+        )
+
+        download_fresh_source(zip_path=zip_path, source_dir=source_dir)
+
+        assert (source_dir / "web" / "sqlite" / "mw.sqlite").exists()
