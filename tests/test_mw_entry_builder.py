@@ -155,7 +155,8 @@ class TestBuildMwEntriesIntegration:
 
         data = load_mw_data(sqlite_dir)
         entries = build_mw_entries(data)
-        assert len(entries) == 194_083
+        # Cologne updates upstream data; assert a floor, not an exact pin.
+        assert len(entries) >= 194_083
 
     def test_first_entry_is_a(self):
         sqlite_dir = (
