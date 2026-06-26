@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'dictionaries/**'
+      - "dictionaries/**"
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -52,25 +52,25 @@ jobs:
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
-          
+
           # Rename individual dictionary files with -gd and -mdict suffixes
           for zip in build/goldendict/*.zip; do
             basename=$(basename "$zip" .zip)
             cp "$zip" "release-assets/${basename}-gd.zip"
           done
-          
+
           for zip in build/mdict/*.zip; do
             basename=$(basename "$zip" .zip)
             cp "$zip" "release-assets/${basename}-mdict.zip"
           done
-          
+
           # Create combined archives (flat structure)
           cd build/goldendict
           zip -r ../../release-assets/all-dictionaries-gd.zip *.zip
           cd ../mdict
           zip -r ../../release-assets/all-dictionaries-mdict.zip *.zip
           cd ../..
-          
+
           echo "Release assets prepared:"
           ls -la release-assets/
 
@@ -89,6 +89,7 @@ jobs:
 
           | Abbreviation | Full name |
           |---|---|
+          | all-dictionaries | All Pāḷi and Sanskrit dictionaries |
           | apte | Apte Practical Sanskrit-English Dictionary, 1890 |
           | bhs | Edgerton's Buddhist Hybrid Sanskrit Dictionary, 1953 |
           | bold_definitions | CST Bold Definitions |
