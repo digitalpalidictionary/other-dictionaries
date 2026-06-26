@@ -36,30 +36,74 @@ class ApteData:
 
 APTE_ZIP_URL = "https://www.sanskrit-lexicon.uni-koeln.de/scans/AP90Scan/2020/downloads/ap90web1.zip"
 
+# Cologne's server rejects python-requests' default User-Agent (403/500).
+REQUEST_HEADERS = {"User-Agent": "dpd-other-dictionaries-build/1.0"}
+
+
+def _local_zip_is_valid(zip_path: Path) -> bool:
+    return zip_path.exists() and zipfile.is_zipfile(zip_path)
+
+
+def _unpack_if_missing(zip_path: Path, source_dir: Path) -> None:
+    if not (source_dir / "web" / "sqlite").exists():
+        _unpack_zip(zip_path, source_dir)
+
+
+def _fall_back_to_local_zip(zip_path: Path, source_dir: Path, reason: str) -> None:
+    if _local_zip_is_valid(zip_path):
+        pr.red(f"{reason} — using local ap90web1.zip")
+        _unpack_if_missing(zip_path, source_dir)
+        return
+    raise RuntimeError(f"{reason} and no valid local ap90web1.zip to fall back to")
+
 
 def download_fresh_source(zip_path: Path, source_dir: Path) -> None:
     """Download ap90web1.zip from Cologne if remote size differs from local.
 
-    Compares Content-Length header against local file size.
-    Downloads and unpacks when they differ or local file is missing.
+    Compares Content-Length header against local file size. Downloads when
+    they differ or the local file is missing. Falls back to a valid local
+    zip when Cologne is unreachable or returns invalid data. Unpacks
+    whenever the extracted sqlite directory is missing.
     """
     pr.green("checking cologne server for updates")
 
-    response = requests.head(APTE_ZIP_URL, timeout=30)
-    remote_size = int(response.headers.get("Content-Length", 0))
+    try:
+        response = requests.head(APTE_ZIP_URL, timeout=30, headers=REQUEST_HEADERS)
+        response.raise_for_status()
+        remote_size = int(response.headers.get("Content-Length", 0))
+    except requests.RequestException as e:
+        _fall_back_to_local_zip(zip_path, source_dir, f"cologne unreachable ({e})")
+        return
 
     local_size = zip_path.stat().st_size if zip_path.exists() else 0
 
     if local_size == remote_size and local_size > 0:
         pr.yes("up to date")
+        _unpack_if_missing(zip_path, source_dir)
         return
 
     pr.no("downloading")
     pr.green(f"downloading ap90web1.zip ({remote_size / 1_000_000:.1f} MB)")
 
-    response = requests.get(APTE_ZIP_URL, timeout=300)
+    try:
+        response = requests.get(APTE_ZIP_URL, timeout=300, headers=REQUEST_HEADERS)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        _fall_back_to_local_zip(zip_path, source_dir, f"download failed ({e})")
+        return
+
     zip_path.parent.mkdir(parents=True, exist_ok=True)
-    zip_path.write_bytes(response.content)
+    tmp_path = zip_path.with_suffix(".zip.tmp")
+    tmp_path.write_bytes(response.content)
+
+    if not zipfile.is_zipfile(tmp_path):
+        tmp_path.unlink(missing_ok=True)
+        _fall_back_to_local_zip(
+            zip_path, source_dir, "downloaded file is not a valid zip"
+        )
+        return
+
+    tmp_path.replace(zip_path)
     pr.yes("done")
 
     _unpack_zip(zip_path, source_dir)
