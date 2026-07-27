@@ -28,6 +28,13 @@ bulk_dump_html.html
 /dictionaries/mw/source/*
 !/dictionaries/mw/source/mwweb1.zip
 
+# Apte: same deal — Cologne is a third party, and prepare_sources.py only
+# re-downloads when the remote size changes, so this costs history space
+# solely on a genuine upstream update.
+!/dictionaries/apte/source/
+/dictionaries/apte/source/*
+!/dictionaries/apte/source/ap90web1.zip
+
 # logs
 *.log
 archive/*
