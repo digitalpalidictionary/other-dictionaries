@@ -2,7 +2,7 @@
 
 import json
 
-from vendor.dpd_tools.goldendict_exporter import DictInfo, DictVariables
+from vendor.dpd_tools.goldendict_exporter import DictEntry, DictInfo, DictVariables
 from vendor.dpd_tools.goldendict_exporter import export_to_goldendict_with_pyglossary
 from vendor.dpd_tools.mdict_exporter import export_to_mdict
 from vendor.dpd_tools.paths import RepoPaths
@@ -15,12 +15,12 @@ from dictionaries.apte.apte_helpers import (
 )
 
 
-def main() -> None:
-    pr.tic()
-    pr.title("exporting apte (cologne source) to GoldenDict, MDict")
+def build_apte_json(pth: RepoPaths) -> list[DictEntry]:
+    """Fetch fresh Cologne source data and write source/apte.json.
 
-    pth = RepoPaths()
-
+    Returns the built entries so main() can reuse them for the
+    GoldenDict/MDict exports.
+    """
     pr.green_title("downloading fresh source data")
     download_fresh_source(
         zip_path=pth.apte_zip_path, source_dir=pth.apte_zip_path.parent
@@ -30,6 +30,32 @@ def main() -> None:
     data = load_apte_data(pth.apte_source_dir)
 
     dict_data = build_apte_entries(data)
+
+    pr.green_title("saving apte.json")
+    json_data = [
+        {
+            "word": e.word,
+            "definition_html": e.definition_html,
+            "definition_plain": e.definition_plain,
+            "synonyms": e.synonyms,
+        }
+        for e in dict_data
+    ]
+    with open(pth.apte_json_path, "w") as f:
+        json.dump(json_data, f, ensure_ascii=False)
+    pr.green(f"saved {len(json_data)} entries")
+    pr.yes("ok")
+
+    return dict_data
+
+
+def main() -> None:
+    pr.tic()
+    pr.title("exporting apte (cologne source) to GoldenDict, MDict")
+
+    pth = RepoPaths()
+
+    dict_data = build_apte_json(pth)
 
     dict_info = DictInfo(
         bookname="Apte Practical Sanskrit-English Dictionary, 1890",
@@ -54,21 +80,6 @@ def main() -> None:
         zip_up=True,
         delete_original=True,
     )
-
-    pr.green_title("saving apte.json")
-    json_data = [
-        {
-            "word": e.word,
-            "definition_html": e.definition_html,
-            "definition_plain": e.definition_plain,
-            "synonyms": e.synonyms,
-        }
-        for e in dict_data
-    ]
-    with open(pth.apte_json_path, "w") as f:
-        json.dump(json_data, f, ensure_ascii=False)
-    pr.green(f"saved {len(json_data)} entries")
-    pr.yes("ok")
 
     export_to_goldendict_with_pyglossary(dict_info, dict_vars, dict_data)
     export_to_mdict(dict_info, dict_vars, dict_data)
