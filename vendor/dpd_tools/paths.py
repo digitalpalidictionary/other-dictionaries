@@ -29,6 +29,7 @@ class RepoPaths:
         self._setup_dppn_paths()
         self._setup_dpr_paths()
         self._setup_mw_paths()
+        self._setup_nyanatiloka_paths()
         self._setup_peu_paths()
         self._setup_simsapa_paths()
         self._setup_sin_eng_sin_paths()
@@ -103,6 +104,13 @@ class RepoPaths:
         self.mw_css_path = d / "mw.css"
         self.mw_gd_path = self.goldendict_path
         self.mw_mdict_path = self.mdict_path
+
+    def _setup_nyanatiloka_paths(self):
+        d = self.dictionaries_dir / "nyanatiloka"
+        self.nyanatiloka_source_path = d / "source" / "nyanatiloka.json"
+        self.nyanatiloka_css_path = d / "nyanatiloka.css"
+        self.nyanatiloka_gd_path = self.goldendict_path
+        self.nyanatiloka_mdict_path = self.mdict_path
 
     def _setup_peu_paths(self):
         d = self.dictionaries_dir / "peu"

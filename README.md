@@ -15,6 +15,7 @@ Auxiliary dictionary exporters for Pāḷi, Sanskrit, and Sinhala languages, pro
 | dppn | Dictionary of Pāli Proper Names |
 | dpr | DPR Analysis |
 | mw | Monier-Williams Sanskrit-English Dictionary, 1899 |
+| nyanatiloka | Buddhist Dictionary: Manual of Buddhist Terms and Doctrines |
 | peu | Pali English Ultimate |
 | si-en-si | Sinhala-English English-Sinhala Dictionary |
 | simsapa | Simsapa Combined Pali-English Dictionary |
