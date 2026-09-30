@@ -16,7 +16,7 @@ def main():
     """Export Nyanatiloka's Buddhist Dictionary to Goldendict and MDict"""
 
     pr.tic()
-    pr.title("exporting Nyanatiloka's Buddhist Dictionary")
+    pr.title("exporting Nyanatiloka")
 
     pr.green("preparing data")
     pth = RepoPaths()
