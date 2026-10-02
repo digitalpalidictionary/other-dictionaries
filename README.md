@@ -17,6 +17,7 @@ Auxiliary dictionary exporters for Pāḷi, Sanskrit, and Sinhala languages, pro
 | mw | Monier-Williams Sanskrit-English Dictionary, 1899 |
 | nyanatiloka | Buddhist Dictionary: Manual of Buddhist Terms and Doctrines |
 | peu | Pali English Ultimate |
+| pts | PTS Pāḷi-English Dictionary, 1921–25 |
 | si-en-si | Sinhala-English English-Sinhala Dictionary |
 | simsapa | Simsapa Combined Pali-English Dictionary |
 | whitney | Whitney Sanskrit Roots |

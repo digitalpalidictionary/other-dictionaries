@@ -31,6 +31,7 @@ class RepoPaths:
         self._setup_mw_paths()
         self._setup_nyanatiloka_paths()
         self._setup_peu_paths()
+        self._setup_pts_paths()
         self._setup_simsapa_paths()
         self._setup_sin_eng_sin_paths()
         self._setup_whitney_paths()
@@ -117,6 +118,14 @@ class RepoPaths:
         self.peu_source_path = d / "source" / "peu_dump.js"
         self.peu_gd_path = self.goldendict_path
         self.peu_mdict_path = self.mdict_path
+
+    def _setup_pts_paths(self):
+        d = self.dictionaries_dir / "pts"
+        self.pts_raw_path = d / "source" / "ped.htm"
+        self.pts_source_path = d / "source" / "pts.json"
+        self.pts_css_path = d / "pts.css"
+        self.pts_gd_path = self.goldendict_path
+        self.pts_mdict_path = self.mdict_path
 
     def _setup_simsapa_paths(self):
         d = self.dictionaries_dir / "simsapa"

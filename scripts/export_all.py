@@ -9,6 +9,7 @@ from dictionaries.dpr.dpr import main as dpr
 from dictionaries.mw.mw_from_cologne import main as mw
 from dictionaries.nyanatiloka.nyanatiloka import main as nyanatiloka
 from dictionaries.peu.peu import main as peu
+from dictionaries.pts.pts import main as pts
 from dictionaries.simsapa.simsapa_combined import main as simsapa
 from dictionaries.sin_eng_sin.sin_eng_sin import main as sin_eng_sin
 from dictionaries.whitney.whitney import main as whitney
@@ -35,6 +36,7 @@ def main():
     mw()
     nyanatiloka()
     peu()
+    pts()
     simsapa()
     sin_eng_sin()
     whitney()

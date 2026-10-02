@@ -41,6 +41,7 @@ def prepare_sources() -> bool:
         "apte": pth.apte_json_path,
         "dppn": pth.dppn_source_path,
         "nyanatiloka": pth.nyanatiloka_source_path,
+        "pts": pth.pts_source_path,
     }
 
     pr.title("mobile-critical source files")
