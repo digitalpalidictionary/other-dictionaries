@@ -1,0 +1,39 @@
+/* Buddhist Wiki — GoldenDict / MDict styling */
+
+body {
+    font-family: sans-serif;
+    font-size: 100%;
+    line-height: 1.5;
+    color: #202122;
+}
+
+/* internal article links (bword:// / Entry://) */
+a.wl {
+    color: #3366cc;
+    text-decoration: none;
+}
+
+a.wl:hover {
+    text-decoration: underline;
+}
+
+/* external links */
+a.extiw,
+a.external {
+    color: #3366cc;
+}
+
+h1,
+h2,
+h3 {
+    color: #000000;
+}
+
+/* attribution footer */
+.wp-attribution {
+    margin-top: 1em;
+    padding-top: 0.4em;
+    border-top: 1px solid #a2a9b1;
+    font-size: 85%;
+    color: #54595d;
+}

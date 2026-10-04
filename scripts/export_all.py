@@ -1,3 +1,5 @@
+import sys
+
 from dictionaries.abt.abt_glossary import main as abt
 from dictionaries.apte.apte_from_cologne import main as apte
 from dictionaries.bhs.bhs import main as bhs
@@ -11,6 +13,7 @@ from dictionaries.pts.pts import main as pts
 from dictionaries.simsapa.simsapa_combined import main as simsapa
 from dictionaries.sin_eng_sin.sin_eng_sin import main as sin_eng_sin
 from dictionaries.whitney.whitney import main as whitney
+from dictionaries.buddhist_wiki.buddhist_wiki import main as buddhist_wiki
 
 from vendor.dpd_tools.printer import printer as pr
 
@@ -22,6 +25,8 @@ def main():
     from scripts.decompress_sources import decompress_sources
 
     decompress_sources()
+
+    skip_buddhist_wiki = "--skip-buddhist-wiki" in sys.argv
 
     abt()
     apte()
@@ -36,6 +41,10 @@ def main():
     simsapa()
     sin_eng_sin()
     whitney()
+    if not skip_buddhist_wiki:
+        buddhist_wiki()
+    else:
+        pr.warning("skipping buddhist wiki")
 
     pr.green_title("all dictionaries exported successfully!")
 

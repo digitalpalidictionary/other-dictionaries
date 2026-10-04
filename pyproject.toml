@@ -16,6 +16,7 @@ dependencies = [
     "httpx>=0.28.1",
     "tqdm>=4.67.3",
     "selenium>=4.20.0",
+    "wikitextparser>=2.0.0",
 ]
 
 [dependency-groups]

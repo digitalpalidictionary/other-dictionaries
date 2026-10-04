@@ -35,6 +35,7 @@ class RepoPaths:
         self._setup_simsapa_paths()
         self._setup_sin_eng_sin_paths()
         self._setup_whitney_paths()
+        self._setup_buddhist_wiki_paths()
         self._setup_wordnet_paths()
 
         if create_dirs:
@@ -146,6 +147,18 @@ class RepoPaths:
         self.whitney_css_path = d / "whitney.css"
         self.whitney_gd_path = self.goldendict_path
         self.whitney_mdict_path = self.mdict_path
+
+    def _setup_buddhist_wiki_paths(self):
+        d = self.dictionaries_dir / "buddhist_wiki"
+        self.buddhist_wiki_source_dir = d / "source"
+        self.buddhist_wiki_seed_articles_path = d / "source" / "seed_articles.txt"
+        self.buddhist_wiki_article_list_path = d / "source" / "article_list.txt"
+        self.buddhist_wiki_wikitext_path = d / "source" / "wikitext.jsonl"
+        self.buddhist_wiki_fetch_checkpoint_path = d / "source" / "fetch_checkpoint.txt"
+        self.buddhist_wiki_redirects_path = d / "source" / "redirects.json"
+        self.buddhist_wiki_css_path = d / "buddhist_wiki.css"
+        self.buddhist_wiki_gd_path = self.goldendict_path
+        self.buddhist_wiki_mdict_path = self.mdict_path
 
     def _setup_wordnet_paths(self):
         d = self.dictionaries_dir / "wordnet"

@@ -19,6 +19,7 @@ Auxiliary dictionary exporters for Pāḷi, Sanskrit, and Sinhala languages, pro
 | si-en-si | Sinhala-English English-Sinhala Dictionary |
 | simsapa | Simsapa Combined Pali-English Dictionary |
 | whitney | Whitney Sanskrit Roots |
+| buddhist_wiki | Buddhist Wiki — articles on Buddhism adapted from English Wikipedia, CC BY-SA 4.0 |
 
 ## Quick Start
 

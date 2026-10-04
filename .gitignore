@@ -28,6 +28,12 @@ bulk_dump_html.html
 /dictionaries/mw/source/*
 !/dictionaries/mw/source/mwweb1.zip
 
+# Buddhist Wiki: track the article lists, ignore the fetched wikitext bulk
+!/dictionaries/buddhist_wiki/source/
+/dictionaries/buddhist_wiki/source/*
+!/dictionaries/buddhist_wiki/source/seed_articles.txt
+!/dictionaries/buddhist_wiki/source/article_list.txt
+
 # Apte: same deal — Cologne is a third party, and prepare_sources.py only
 # re-downloads when the remote size changes, so this costs history space
 # solely on a genuine upstream update.
