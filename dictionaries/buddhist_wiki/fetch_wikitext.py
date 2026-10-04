@@ -80,6 +80,30 @@ def save_redirects(redirects_path: Path, redirects: dict[str, str]) -> None:
         json.dump(redirects, f, ensure_ascii=False, sort_keys=True, indent=0)
 
 
+def api_get(client: httpx.Client, params: dict[str, str]) -> dict[str, Any]:
+    """One action-API GET with exponential backoff on 429/5xx and network errors."""
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = client.get(API_URL, params=params)
+            if response.status_code == 429 or response.status_code >= 500:
+                raise httpx.HTTPStatusError(
+                    f"status {response.status_code}",
+                    request=response.request,
+                    response=response,
+                )
+            response.raise_for_status()
+            return response.json()
+        except (httpx.HTTPError, httpx.StreamError) as e:
+            if attempt == MAX_ATTEMPTS:
+                raise RuntimeError(
+                    f"giving up after {MAX_ATTEMPTS} attempts: {params.get('titles', '')}"
+                ) from e
+            delay = BACKOFF_BASE_SECONDS * (2 ** (attempt - 1))
+            pr.warning(f"attempt {attempt} failed ({e}); retrying in {delay:.0f}s")
+            time.sleep(delay)
+    raise AssertionError("unreachable")
+
+
 def fetch_batch(
     client: httpx.Client, titles: list[str]
 ) -> tuple[list[dict[str, Any]], dict[str, str], dict[str, str], list[str]]:
@@ -101,27 +125,7 @@ def fetch_batch(
         "redirects": "1",
         "titles": "|".join(titles),
     }
-    for attempt in range(1, MAX_ATTEMPTS + 1):
-        try:
-            response = client.get(API_URL, params=params)
-            if response.status_code == 429 or response.status_code >= 500:
-                raise httpx.HTTPStatusError(
-                    f"status {response.status_code}",
-                    request=response.request,
-                    response=response,
-                )
-            response.raise_for_status()
-            break
-        except (httpx.HTTPError, httpx.StreamError) as e:
-            if attempt == MAX_ATTEMPTS:
-                raise RuntimeError(
-                    f"giving up on batch after {MAX_ATTEMPTS} attempts: {titles}"
-                ) from e
-            delay = BACKOFF_BASE_SECONDS * (2 ** (attempt - 1))
-            pr.warning(f"attempt {attempt} failed ({e}); retrying in {delay:.0f}s")
-            time.sleep(delay)
-
-    data = response.json()
+    data = api_get(client, params)
     query = data.get("query", {})
 
     canonical: dict[str, str] = {t: t for t in titles}

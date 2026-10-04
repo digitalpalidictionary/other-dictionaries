@@ -1,77 +1,64 @@
-"""Tests for the redirect-dump step of the Buddhist Wiki dictionary.
+"""Tests for the API redirect step of the Buddhist Wiki dictionary.
 
-Header and rows are copied from enwiki-20261001-redirect.sql.gz; page
-titles for those ids are from enwiki-20261001-page.sql.gz.
+Responses are copied from the live action API (2026-10-05) for
+titles=Karma|Avidyā (Buddhism), cut to a few redirects per page.
 """
 
-import gzip
-import sqlite3
-from pathlib import Path
+import httpx
 
-from dictionaries.buddhist_wiki.make_redirects import (
-    redirect_ids_to_targets,
-    redirect_titles,
-)
+from dictionaries.buddhist_wiki.make_redirects import fetch_redirect_batch
 
-REDIRECT_DUMP = """\
-CREATE TABLE `redirect` (
-  `rd_from` int(8) unsigned NOT NULL DEFAULT 0,
-  `rd_namespace` int(11) NOT NULL DEFAULT 0,
-  `rd_title` varbinary(255) NOT NULL DEFAULT '',
-  `rd_interwiki` varbinary(32) DEFAULT NULL,
-  `rd_fragment` varbinary(255) DEFAULT NULL,
-  PRIMARY KEY (`rd_from`),
-  KEY `rd_ns_title` (`rd_namespace`,`rd_title`,`rd_from`)
-) ENGINE=InnoDB DEFAULT CHARSET=binary ROW_FORMAT=COMPRESSED;
-INSERT INTO `redirect` VALUES
-(10,0,'Computer_accessibility','',''),
-(13,0,'History_of_Afghanistan','',''),
-(50760,14,'Wikipedia','',''),
-(51868,0,'Bodhisattva','','');
-"""
-
-# (id, title, is_redirect, ns) as in the catgraph `ppage` table
-PAGES = [
-    (10, "AccessibleComputing", 1, 0),
-    (13, "AfghanistanHistory", 1, 0),
-    (50760, "Wikidex", 1, 4),
-    (51868, "Bodhisattvas", 1, 0),
-]
-
-
-def _dump(tmp_path: Path) -> Path:
-    gz = tmp_path / "redirect.sql.gz"
-    with gzip.open(gz, "wt", encoding="utf-8") as f:
-        f.write(REDIRECT_DUMP)
-    return gz
+FIRST_PAGE = {
+    "continue": {"rdcontinue": "Karma|210588", "continue": "||"},
+    "query": {
+        "redirects": [{"from": "Avidyā (Buddhism)", "to": "Avidyā"}],
+        "pages": [
+            {"pageid": 16864, "ns": 0, "title": "Karma"},
+            {
+                "pageid": 36640701,
+                "ns": 0,
+                "title": "Avidyā",
+                "redirects": [
+                    {"ns": 0, "title": "Avidyā (Hinduism)"},
+                    {"ns": 0, "title": "Avidya"},
+                ],
+            },
+        ],
+    },
+}
+SECOND_PAGE = {
+    "batchcomplete": True,
+    "query": {
+        "pages": [
+            {
+                "pageid": 16864,
+                "ns": 0,
+                "title": "Karma",
+                "redirects": [{"ns": 0, "title": "Karmic"}],
+            },
+            {"pageid": 36640701, "ns": 0, "title": "Avidyā"},
+        ],
+    },
+}
 
 
-def _catgraph(tmp_path: Path) -> Path:
-    db = tmp_path / "catgraph.sqlite3"
-    conn = sqlite3.connect(db)
-    conn.execute(
-        "CREATE TABLE ppage (id INTEGER PRIMARY KEY, title TEXT,"
-        " is_redirect INTEGER, ns INTEGER)"
-    )
-    conn.executemany("INSERT INTO ppage VALUES (?,?,?,?)", PAGES)
-    conn.commit()
-    conn.close()
-    return db
+def test_follows_continue_and_maps_redirects_to_articles() -> None:
+    seen: list[dict[str, str]] = []
 
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(dict(request.url.params))
+        page = SECOND_PAGE if "rdcontinue" in request.url.params else FIRST_PAGE
+        return httpx.Response(200, json=page)
 
-def test_keeps_only_mainspace_redirects_to_listed_articles(tmp_path: Path) -> None:
-    targets = redirect_ids_to_targets(
-        _dump(tmp_path), {"Bodhisattva", "History of Afghanistan", "Wikipedia"}
-    )
-    # 50760 points at Category:Wikipedia (ns 14), not the article
-    assert targets == {13: "History of Afghanistan", 51868: "Bodhisattva"}
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    found = fetch_redirect_batch(client, ["Karma", "Avidyā (Buddhism)"])
 
-
-def test_resolves_redirect_titles_with_spaces(tmp_path: Path) -> None:
-    found = redirect_titles(
-        _catgraph(tmp_path), {13: "History of Afghanistan", 51868: "Bodhisattva"}
-    )
     assert found == {
-        "AfghanistanHistory": "History of Afghanistan",
-        "Bodhisattvas": "Bodhisattva",
+        "Avidyā (Buddhism)": "Avidyā",
+        "Avidyā (Hinduism)": "Avidyā",
+        "Avidya": "Avidyā",
+        "Karmic": "Karma",
     }
+    # the second request carried the continue token
+    assert len(seen) == 2
+    assert seen[1]["rdcontinue"] == "Karma|210588"

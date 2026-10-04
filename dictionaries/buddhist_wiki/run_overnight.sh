@@ -33,31 +33,37 @@ dl() {
         && touch "$out.done"
 }
 
-step "1/6 SQL dumps: categorylinks, linktarget, page, page_props, redirect"
+step "1/7 SQL dumps: categorylinks, linktarget, page, page_props"
 dl "$DUMP_URL-categorylinks.sql.gz" "$DUMP_DIR/enwiki-latest-categorylinks.sql.gz"
 dl "$DUMP_URL-linktarget.sql.gz" "$DUMP_DIR/enwiki-latest-linktarget.sql.gz"
 dl "$DUMP_URL-page.sql.gz" "$DUMP_DIR/enwiki-latest-page.sql.gz"
 dl "$DUMP_URL-page_props.sql.gz" "$DUMP_DIR/enwiki-latest-page_props.sql.gz"
-dl "$DUMP_URL-redirect.sql.gz" "$DUMP_DIR/enwiki-latest-redirect.sql.gz"
-for f in categorylinks linktarget page page_props redirect; do
+for f in categorylinks linktarget page page_props; do
     [ -f "$DUMP_DIR/enwiki-latest-$f.sql.gz.done" ] \
         || { echo "[$(stamp)] DOWNLOAD FAILED: $f"; exit 1; }
 done
 
-step "2/6 build article list (parses the SQL dumps)"
+step "2/7 build article list (parses the SQL dumps)"
 uv run python dictionaries/buddhist_wiki/make_article_list.py || { echo "[$(stamp)] ARTICLE LIST FAILED"; exit 1; }
 
-step "3/6 fetch article wikitext from the Wikipedia API"
+step "3/7 fetch article wikitext from the Wikipedia API"
 uv run python dictionaries/buddhist_wiki/fetch_wikitext.py \
     --list dictionaries/buddhist_wiki/source/article_list.txt \
     || { echo "[$(stamp)] API FETCH FAILED"; exit 1; }
 
 # never alongside the fetch: both rewrite redirects.json
-step "4/6 add dump redirects to redirects.json"
+step "4/7 add API redirects to redirects.json"
 uv run python dictionaries/buddhist_wiki/make_redirects.py || { echo "[$(stamp)] REDIRECTS FAILED"; exit 1; }
 
-step "5/6 build GoldenDict + MDict"
+step "5/7 build GoldenDict + MDict"
 uv run python dictionaries/buddhist_wiki/buddhist_wiki.py || { echo "[$(stamp)] BUILD FAILED"; exit 1; }
 
-step "6/6 done — dumps kept on disk (deleting them would force re-downloads)"
+# CI rebuilds every dictionary from committed sources only, so the fetched
+# text and redirects must be committed as this archive (gitignored otherwise)
+step "6/7 pack fetched sources for CI"
+tar -cf - -C dictionaries/buddhist_wiki/source wikitext.jsonl redirects.json \
+    | zstd -19 -T0 -f -o dictionaries/buddhist_wiki/buddhist_wiki.tar.zst \
+    || { echo "[$(stamp)] PACK FAILED"; exit 1; }
+
+step "7/7 done — commit buddhist_wiki.tar.zst; dumps can be deleted"
 echo "[$(stamp)] OVERNIGHT RUN COMPLETE"
